@@ -3,7 +3,6 @@ package com.dev.blogger.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dev.blogger.repository.Blog;
+import com.dev.blogger.entities.Blog;
+import com.dev.blogger.entities.User;
 import com.dev.blogger.repository.BloggerRepository;
-import com.dev.blogger.repository.User;
 import com.dev.blogger.repository.UserRepository;
 
 @RestController
@@ -29,18 +28,10 @@ public class BlogController {
     @Autowired 
     private UserRepository userRepository;
     
-    //User user1 = new User();
-    
-   // @Bean
-	//public User Demo() {    
-	//    user1.setUId("1");
-	 //   user1.setName("Nirav");
-	  //  return userRepository.save(user1);
-	//}
 
     @PostMapping(path = "/blogpost", consumes = "application/json", produces = "application/json")
     public Blog Create (@RequestBody Blog blog){
-    	LOGGER.info("userId = {}", blog.getBlogId());
+    	LOGGER.info("userId = {}", blog.getBlogid());
         return blogRepository.save(blog);  
    }
 
@@ -52,13 +43,13 @@ public class BlogController {
    
    @PostMapping(path = "/register", consumes = "application/json", produces = "application/json")
    public User Create (@RequestBody User user){
-   	LOGGER.info("userId = {}", user.getUId());
+   	LOGGER.info("userId = {}", user.getUID());
        return userRepository.save(user);
   }
    
   @GetMapping(path = "/user/{userId}", produces = "application/json")
   public ResponseEntity<?> findByUID(@PathVariable Long userId) {
 	  LOGGER.info("Blogger Name/username/ID = {} ",userId);
-      return ResponseEntity.ok(userRepository.findByUID(userId));
+      return ResponseEntity.ok(userRepository.findById(userId));
   }
 }
