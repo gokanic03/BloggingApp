@@ -1,5 +1,7 @@
 package com.dev.blogger.controller;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,9 @@ import com.dev.blogger.entities.Blog;
 import com.dev.blogger.entities.User;
 import com.dev.blogger.repository.BloggerRepository;
 import com.dev.blogger.repository.UserRepository;
+import com.dev.blogger.views.Views;
+import com.dev.blogger.views.Views.Internal;
+import com.fasterxml.jackson.annotation.JsonView;
 
 @RestController
 @RequestMapping("/v1")
@@ -26,30 +31,37 @@ public class BlogController {
     private BloggerRepository blogRepository;
     
     @Autowired 
-    private UserRepository userRepository;
-    
+    private UserRepository userRepository;    
 
-    @PostMapping(path = "/blogpost", consumes = "application/json", produces = "application/json")
-    public Blog Create (@RequestBody Blog blog){
+    @PostMapping(path = "/blogpost/{userid}", consumes = "application/json", produces = "application/json")
+    @JsonView(Views.Public.class)
+    public Optional<Blog> Create (@PathVariable Long userid,  @RequestBody Blog blog){
+    	return userRepository.findById(userid).map( user -> {
+  	   	blog.setUser(user);
     	LOGGER.info("userId = {}", blog.getBlogid());
         return blogRepository.save(blog);  
+    });
    }
 
    @GetMapping(path = "/blog/{userid}", produces = "application/json")
+   @JsonView(Views.Public.class)
    public ResponseEntity<?> findByuserid(@PathVariable Long userid) {
 	   LOGGER.info("Blogger ID = {} ",userid);
-       return ResponseEntity.ok(blogRepository.findByuseridOrderByBlogidDesc(userid));
+	   Optional<User> user = userRepository.findById(userid);
+	   user.get();
+       return ResponseEntity.ok(blogRepository.findByuserOrderByBlogidDesc(user));
    }
    
    @PostMapping(path = "/register", consumes = "application/json", produces = "application/json")
    public User Create (@RequestBody User user){
-   	LOGGER.info("userId = {}", user.getUID());
+   	LOGGER.info("userId = {}", user.getUid());
        return userRepository.save(user);
   }
    
   @GetMapping(path = "/user/{userId}", produces = "application/json")
+  @JsonView(Views.Internal.class)
   public ResponseEntity<?> findByUID(@PathVariable Long userId) {
-	  LOGGER.info("Blogger Name/username/ID = {} ",userId);
+	  //LOGGER.info("Blogger Name/username/ID = {} ",userId);
       return ResponseEntity.ok(userRepository.findById(userId));
   }
 }
