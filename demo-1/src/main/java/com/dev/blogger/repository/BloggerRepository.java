@@ -1,6 +1,5 @@
 package com.dev.blogger.repository;
 
-//import java.util.List;
 import java.util.List;
 import java.util.Optional;
 
